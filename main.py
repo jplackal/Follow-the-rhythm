@@ -3,8 +3,8 @@ import pygame
 
 pygame.init()
 screen_mult = 1.2
-WIDTH = 360*screen_mult
-HEIGHT = 640*screen_mult
+WIDTH = 500*screen_mult
+HEIGHT = 600*screen_mult
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Follow the Rythm")
