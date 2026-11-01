@@ -11,6 +11,10 @@ pygame.display.set_caption("Follow the Rythm")
 background = pygame.image.load("assets/image_assets/ftr_bg.png").convert()
 background_blank = pygame.image.load("assets/image_assets/bg.png").convert()
 start_button = pygame.image.load("assets/image_assets/start.png").convert_alpha()
+miss = pygame.image.load("assets/image_assets/miss.png").convert_alpha()
+early = pygame.image.load("assets/image_assets/early.png").convert_alpha()
+late = pygame.image.load("assets/image_assets/late.png").convert_alpha()
+perfect = pygame.image.load("assets/image_assets/perfect.png").convert_alpha()
 left_arrow = pygame.image.load("assets/image_assets/left_arrow.png").convert_alpha()
 back_arrow = pygame.image.load("assets/image_assets/left_arrow.png").convert_alpha()
 right_arrow = pygame.image.load("assets/image_assets/right_arrow.png").convert_alpha()
@@ -20,6 +24,10 @@ start_button = pygame.transform.smoothscale(start_button, ((start_button.get_wid
 right_arrow = pygame.transform.smoothscale(right_arrow, ((right_arrow.get_width())*0.03, (right_arrow.get_height())*0.03))
 left_arrow = pygame.transform.smoothscale(left_arrow, ((left_arrow.get_width())*0.3, (left_arrow.get_height())*0.3))
 back_arrow = pygame.transform.smoothscale(back_arrow, ((back_arrow.get_width())*0.1, (back_arrow.get_height())*0.1))
+miss = pygame.transform.smoothscale(miss, ((miss.get_width())*0.03, (miss.get_height())*0.03))
+late = pygame.transform.smoothscale(late, ((late.get_width())*0.03, (late.get_height())*0.03))
+early = pygame.transform.smoothscale(early, ((early.get_width())*0.03, (early.get_height())*0.03))
+perfect = pygame.transform.smoothscale(perfect, ((perfect.get_width())*0.03, (perfect.get_height())*0.03))
 start_rect = start_button.get_rect(topleft=(150, 400))
 left_arrow_rect = left_arrow.get_rect(topleft=(20, 500))
 back_arrow_rect = back_arrow.get_rect(topleft=(425, 20))
@@ -44,7 +52,7 @@ note_spacing = 72
 time = 0
 speed = 3
 colors = [(240, 105, 105), (115, 205, 130), (245, 220, 105), (105, 165, 235)]
-#mv ~/Downloads/early.png ~/Desktop/hack_club_projects/follow_the_rythm/assets/image_assets/
+
 def check_game_end():
     global slide
     for i in range (len(pending[0])-1,-1,-1):
@@ -65,18 +73,31 @@ def draw_game():
     pygame.draw.rect(screen, (0,0,0), (176-(10/2), 0, 10, HEIGHT))
     draw_notes()
     for i in range(0,4):
-        pygame.draw.circle(screen, (0,0,0), (140+(i*72), 550), 32)
-        pygame.draw.circle(screen, colors[i], (140+(i*72), 550), 30)
+        pygame.draw.circle(screen, (0,0,0), (140+(i*72), 500), 32)
+        pygame.draw.circle(screen, colors[i], (140+(i*72), 500), 30)
     screen.blit(song_text, ((WIDTH/2)-(17*(len(song_names[song-1])/2)), 5))
     screen.blit(back_arrow, (425, 20))
 def upload_level():
     global pending
     pending = [songs_notes[song-1][0].copy(),
                songs_notes[song-1][1].copy()]
+    pending.append([])
+    for i in range(0, len(pending[0])):
+        pending[2].append(0)
+    print(pending)
 def draw_notes():
     for i in range (0, len(pending[0])):
         pygame.draw.circle(screen,(0,0,0), (140+(72*(pending[0][i]-1)), int(0 - (note_spacing * pending[1][i]))+time), 32)
         pygame.draw.circle(screen, colors[pending[0][i]-1], (140+(72*(pending[0][i]-1)), int(0 - (note_spacing * pending[1][i]))+time), 30)
+        if pending[2][i] == 1:
+            screen.blit(late, (140+(72*(pending[0][i]-1)-30), int(0 - (note_spacing * pending[1][i]))+time-70))
+        elif pending[2][i] == 2:
+            screen.blit(early, (140+(72*(pending[0][i]-1)-30), int(0 - (note_spacing * pending[1][i]))+time-70))
+        elif pending[2][i] == 3:
+            screen.blit(perfect, (140+(72*(pending[0][i]-1)-30), int(0 - (note_spacing * pending[1][i]))+time-70))
+        elif pending[2][i] == 4:
+            screen.blit(miss, (140+(72*(pending[0][i]-1)-30), int(0 - (note_spacing * pending[1][i]))+time-70))
+
 def draw_bg():
     global font
     font = pygame.font.SysFont(False, 75)
