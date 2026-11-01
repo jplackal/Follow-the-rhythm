@@ -39,6 +39,10 @@ def draw_game():
     song_text = font.render(f"{song_names[song-1]}", True, (255, 255, 255))
     screen.blit(background_blank, (0, 0))
     pygame.draw.rect(screen, (105, 105, 105), (100, 0, WIDTH-200, HEIGHT))
+
+    pygame.draw.rect(screen, (0,0,0), (320-(10/2), 0, 10, HEIGHT))
+    pygame.draw.rect(screen, (0,0,0), (248-(10/2), 0, 10, HEIGHT))
+    pygame.draw.rect(screen, (0,0,0), (176-(10/2), 0, 10, HEIGHT))
     screen.blit(song_text, ((WIDTH/2)-(17*(len(song_names[song-1])/2)), 5))
     screen.blit(back_arrow, (425, 20))
     pygame.draw.circle(screen, (0,0,0), (356, 550), 32)
