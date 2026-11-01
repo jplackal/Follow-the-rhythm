@@ -52,6 +52,7 @@ note_spacing = 72
 time = 0
 speed = 3
 colors = [(240, 105, 105), (115, 205, 130), (245, 220, 105), (105, 165, 235)]
+click = 0
 
 def check_game_end():
     global slide
@@ -59,8 +60,26 @@ def check_game_end():
         if 0-(pending[1][i]*note_spacing)+time >1000:
             del pending[0][i]
             del pending[1][i]
+            del pending[2][i]
     if len(pending[0]) == 0:
         slide -= 1
+def check_sense():
+    if click > 0:
+        for i in range(len(pending[0])):
+            note_y = -note_spacing * pending[1][i] + time
+
+            if pending[0][i] == click and abs(note_y - 500) < 50:
+                pending[2][i] = 3  # perfect
+                break
+
+def check_item_click():
+    global click
+    mouse_x, mouse_y = pygame.mouse.get_pos()
+    for i in range(0,4):
+        dist = (((140+(i*72))-mouse_x)**2+((500)-mouse_y)**2)**0.5
+        if dist <= 30:
+            click = i+1
+
 def draw_game():
     global font, colors
     font = pygame.font.SysFont(False, 50)
@@ -120,7 +139,7 @@ def level_select():
 
 async def main():
     running = True
-    global slide, song, level_count, song_name, song_text, start_rect, start_mask, time, speed
+    global slide, song, level_count, song_name, song_text, start_rect, start_mask, time, speed, click
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -197,7 +216,22 @@ async def main():
                     # True means the clicked pixel is opaque in the mask
                     if back_arrow_mask.get_at(local_pos):
                         slide-=1
-
+                else:
+                    check_item_click()
+                    check_sense()
+            elif event.type == pygame.KEYDOWN and slide == 3:
+                if event.key == pygame.K_1:
+                    click = 1
+                    check_sense()
+                if event.key == pygame.K_2:
+                    click = 2
+                    check_sense()
+                if event.key == pygame.K_3:
+                    click = 3
+                    check_sense()
+                if event.key == pygame.K_4:
+                    click = 4
+                    check_sense()
         clock.tick(60)
         screen.fill((0, 0, 0))
         if slide == 1:
