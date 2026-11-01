@@ -66,11 +66,24 @@ def check_game_end():
 def check_sense():
     if click > 0:
         for i in range(len(pending[0])):
-            note_y = -note_spacing * pending[1][i] + time
+            if pending[2][i] == 0:
+                note_y = -note_spacing * pending[1][i] + time
 
-            if pending[0][i] == click and abs(note_y - 500) < 50:
-                pending[2][i] = 3  # perfect
-                break
+                if pending[0][i] == click and abs(note_y - 500) < 50:
+                    pending[2][i] = 3  # perfect
+                    break
+
+                elif pending[0][i] == click and abs(note_y - 500) < 125:
+                    if pending[0][i] == click and (note_y - 500) > 0:
+                        pending[2][i] = 1  # late
+                        break
+                    else:
+                        pending[2][i] = 2  # early
+                        break
+
+                elif pending[0][i] == click and abs(note_y - 500) < 300:
+                    pending[2][i] = 4  # miss
+                    break
 
 def check_item_click():
     global click
