@@ -32,9 +32,29 @@ clock = pygame.time.Clock()
 font = pygame.font.SysFont(False, 75)
 song_name = font.render("", True, (255, 255, 255))
 song_names = ["The Tutorial","The beggining", "hard level"]
-#mv ~/Downloads/bg.png ~/Desktop/hack_club_projects/follow_the_rythm/assets/image_assets/
+song_speeds = [4,2,3]
+pending = [[],[]]
+songs_notes = [[[1, 2, 3, 4, 1, 2, 3, 4, 1, 3, 2, 4],
+                [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]],
+               [[2,4,1,3],
+                [1,2,3,4]],
+               [[4,3,2,1],
+                [1,2,5,6]]]
+note_spacing = 72
+time = 0
+speed = 3
+colors = [(240, 105, 105), (115, 205, 130), (245, 220, 105), (105, 165, 235)]
+#mv ~/Downloads/early.png ~/Desktop/hack_club_projects/follow_the_rythm/assets/image_assets/
+def check_game_end():
+    global slide
+    for i in range (len(pending[0])-1,-1,-1):
+        if 0-(pending[1][i]*note_spacing)+time >1000:
+            del pending[0][i]
+            del pending[1][i]
+    if len(pending[0]) == 0:
+        slide -= 1
 def draw_game():
-    global font
+    global font, colors
     font = pygame.font.SysFont(False, 50)
     song_text = font.render(f"{song_names[song-1]}", True, (255, 255, 255))
     screen.blit(background_blank, (0, 0))
@@ -43,16 +63,20 @@ def draw_game():
     pygame.draw.rect(screen, (0,0,0), (320-(10/2), 0, 10, HEIGHT))
     pygame.draw.rect(screen, (0,0,0), (248-(10/2), 0, 10, HEIGHT))
     pygame.draw.rect(screen, (0,0,0), (176-(10/2), 0, 10, HEIGHT))
+    draw_notes()
+    for i in range(0,4):
+        pygame.draw.circle(screen, (0,0,0), (140+(i*72), 550), 32)
+        pygame.draw.circle(screen, colors[i], (140+(i*72), 550), 30)
     screen.blit(song_text, ((WIDTH/2)-(17*(len(song_names[song-1])/2)), 5))
     screen.blit(back_arrow, (425, 20))
-    pygame.draw.circle(screen, (0,0,0), (356, 550), 32)
-    pygame.draw.circle(screen, (0,0,0), (284, 550), 32)
-    pygame.draw.circle(screen, (0,0,0), (212, 550), 32)
-    pygame.draw.circle(screen, (0,0,0), (140, 550), 32)
-    pygame.draw.circle(screen, (240, 105, 105), (356, 550), 30)
-    pygame.draw.circle(screen, (115, 205, 130), (284, 550), 30)
-    pygame.draw.circle(screen, (245, 220, 105), (212, 550), 30)
-    pygame.draw.circle(screen, (105, 165, 235), (140, 550), 30)
+def upload_level():
+    global pending
+    pending = [songs_notes[song-1][0].copy(),
+               songs_notes[song-1][1].copy()]
+def draw_notes():
+    for i in range (0, len(pending[0])):
+        pygame.draw.circle(screen,(0,0,0), (140+(72*(pending[0][i]-1)), int(0 - (note_spacing * pending[1][i]))+time), 32)
+        pygame.draw.circle(screen, colors[pending[0][i]-1], (140+(72*(pending[0][i]-1)), int(0 - (note_spacing * pending[1][i]))+time), 30)
 def draw_bg():
     global font
     font = pygame.font.SysFont(False, 75)
@@ -75,7 +99,7 @@ def level_select():
 
 async def main():
     running = True
-    global slide, song, level_count, song_name, song_text, start_rect, start_mask
+    global slide, song, level_count, song_name, song_text, start_rect, start_mask, time, speed
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -137,6 +161,10 @@ async def main():
                     # True means the clicked pixel is opaque in the mask
                     if start_mask.get_at(local_pos):
                         slide+=1
+                        time = 0
+                        speed = song_speeds[song-1]
+                        upload_level()
+                        
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and slide == 3:
                 if back_arrow_rect.collidepoint(event.pos):
 
@@ -157,6 +185,8 @@ async def main():
             level_select()
         elif slide == 3:
             draw_game()
+            check_game_end()
+            time += speed
         pygame.display.flip()
         await asyncio.sleep(0)
 
