@@ -11,8 +11,7 @@ You can also create your own songs by editing the song data in the Python code!
 
 ---
 
-## How to Play
-
+How to play!
 ### 1. Starting the Game
 
 - Click the **Start** button on the main screen.
