@@ -17,7 +17,7 @@ pygame.init()
 WIDTH = 500
 HEIGHT = 600
 
-slide = 4
+slide = 1
 song = 1
 level_count = 3
 
