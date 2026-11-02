@@ -148,3 +148,6 @@ songs_notes = [
 For Test Run
 ```python -m pytest test_main.py```
 
+
+![Follow the Rhythm gameplay](StartScreen.png)
+
