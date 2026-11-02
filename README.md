@@ -150,6 +150,10 @@ songs_notes = [
 For Test Run
 ```python -m pytest test_main.py```
 
+These are the Screen Shots for the Game
 
 ![Follow the Rhythm gameplay](StartScreen)
+![Follow the Rhythm gameplay](Level1Select)
+![Follow the Rhythm gameplay](Level3Select)
+![Follow the Rhythm gameplay](end_screen_image)
 
