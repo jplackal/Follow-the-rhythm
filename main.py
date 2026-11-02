@@ -1,119 +1,72 @@
-# ============================================================
-# IMPORTS AND PYGAME SETUP
-# Add imports for any additional libraries here.
-# ============================================================
-
 import asyncio
+import numpy as np
 import pygame
 
+# Set audio format before initializing Pygame.
+pygame.mixer.pre_init(44100, size=-16, channels=1)
 pygame.init()
-
-
-# ============================================================
-# GAME SETTINGS
-# Change these values to adjust the game.
-# ============================================================
 
 WIDTH = 500
 HEIGHT = 600
 
-slide = 1
+slide = 4
 song = 1
 level_count = 3
-
 score = 0
 new = 0
-
-
-# ============================================================
-# SCREEN SETUP
-# Window size, title, and display settings.
-# ============================================================
+perfects = 0
+misses = 0
+earlys = 0
+lates = 0
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Follow the Rhythm")
-
-clock = pygame.time.Clock()
-
-
-# ============================================================
-# LOAD IMAGES AND ASSETS
-# Add new images, sounds, and other assets here.
-# ============================================================
+pygame.display.set_caption("Follow the Rythm")
 
 background = pygame.image.load("assets/image_assets/ftr_bg.png").convert()
 background_blank = pygame.image.load("assets/image_assets/bg.png").convert()
-
 start_button = pygame.image.load("assets/image_assets/start.png").convert_alpha()
-
 miss = pygame.image.load("assets/image_assets/miss.png").convert_alpha()
 early = pygame.image.load("assets/image_assets/early.png").convert_alpha()
 late = pygame.image.load("assets/image_assets/late.png").convert_alpha()
 perfect = pygame.image.load("assets/image_assets/perfect.png").convert_alpha()
-
 left_arrow = pygame.image.load("assets/image_assets/left_arrow.png").convert_alpha()
 back_arrow = pygame.image.load("assets/image_assets/left_arrow.png").convert_alpha()
 right_arrow = pygame.image.load("assets/image_assets/right_arrow.png").convert_alpha()
-
 check_box = pygame.image.load("assets/image_assets/check_box.png").convert_alpha()
 
 
-# ============================================================
-# IMAGE SCALING
-# Change the multipliers to adjust image sizes.
-# ============================================================
-
 start_button = pygame.transform.smoothscale(
     start_button,
-    (start_button.get_width() * 0.1, start_button.get_height() * 0.1)
+    (int(start_button.get_width() * 0.1), int(start_button.get_height() * 0.1)),
 )
-
 right_arrow = pygame.transform.smoothscale(
     right_arrow,
-    (right_arrow.get_width() * 0.03, right_arrow.get_height() * 0.03)
+    (int(right_arrow.get_width() * 0.03), int(right_arrow.get_height() * 0.03)),
 )
-
 left_arrow = pygame.transform.smoothscale(
     left_arrow,
-    (left_arrow.get_width() * 0.3, left_arrow.get_height() * 0.3)
+    (int(left_arrow.get_width() * 0.3), int(left_arrow.get_height() * 0.3)),
 )
-
 back_arrow = pygame.transform.smoothscale(
     back_arrow,
-    (back_arrow.get_width() * 0.1, back_arrow.get_height() * 0.1)
+    (int(back_arrow.get_width() * 0.1), int(back_arrow.get_height() * 0.1)),
 )
-
 check_box = pygame.transform.smoothscale(
     check_box,
-    (check_box.get_width() * 0.1, check_box.get_height() * 0.1)
+    (int(check_box.get_width() * 0.1), int(check_box.get_height() * 0.1)),
 )
-
 miss = pygame.transform.smoothscale(
-    miss,
-    (miss.get_width() * 0.03, miss.get_height() * 0.03)
+    miss, (int(miss.get_width() * 0.03), int(miss.get_height() * 0.03))
 )
-
 late = pygame.transform.smoothscale(
-    late,
-    (late.get_width() * 0.03, late.get_height() * 0.03)
+    late, (int(late.get_width() * 0.03), int(late.get_height() * 0.03))
 )
-
 early = pygame.transform.smoothscale(
-    early,
-    (early.get_width() * 0.03, early.get_height() * 0.03)
+    early, (int(early.get_width() * 0.03), int(early.get_height() * 0.03))
 )
-
 perfect = pygame.transform.smoothscale(
-    perfect,
-    (perfect.get_width() * 0.03, perfect.get_height() * 0.03)
+    perfect, (int(perfect.get_width() * 0.03), int(perfect.get_height() * 0.03))
 )
-
-
-# ============================================================
-# BUTTON RECTANGLES AND MASKS
-# Rectangles detect clicks.
-# Masks detect clicks on non-transparent pixels.
-# ============================================================
 
 start_rect = start_button.get_rect(topleft=(150, 400))
 left_arrow_rect = left_arrow.get_rect(topleft=(20, 500))
@@ -127,513 +80,340 @@ left_arrow_mask = pygame.mask.from_surface(left_arrow)
 back_arrow_mask = pygame.mask.from_surface(back_arrow)
 check_box_mask = pygame.mask.from_surface(check_box)
 
-
-# ============================================================
-# FONTS AND TEXT
-# Add new fonts and text variables here.
-# ============================================================
-
-font = pygame.font.SysFont(None, 50)
-
-song_text = font.render("", True, (255, 255, 255))
+clock = pygame.time.Clock()
 
 font = pygame.font.SysFont(False, 75)
-
 song_name = font.render("", True, (255, 255, 255))
 high_score_text = font.render("", True, (255, 255, 255))
 last_score_text = font.render("", True, (255, 255, 255))
+song_text = font.render("", True, (255, 255, 255))
 score_text = font.render("", True, (255, 255, 255))
+perfect_text = font.render("1", True, (255, 255, 255))
+miss_text = font.render("1", True, (255, 255, 255))
+early_text = font.render("1", True, (255, 255, 255))
+late_text = font.render("1", True, (255, 255, 255))
 
-
-# ============================================================
-# SONG AND LEVEL DATA
-# Add new levels and song information here.
-#
-# IMPORTANT:
-# Keep song_names, song_speeds, high_scores, last_score,
-# and songs_notes in the same level order.
-# ============================================================
-
-song_names = [
-    "Tutorial",
-    "The beginning",
-    "Hard level"
-]
-
-# Note movement speed for each level.
-song_speeds = [3, 2, 3]
-
-# High scores for each level.
+song_names = ["Tutorial", "Twinkle Twinkle", "TS (HARD)"]
+song_speeds = [4, 4, 10]
 high_scores = [0, 0, 0]
-
-# Previous scores for each level.
 last_score = [0, 0, 0]
 
-
-# ============================================================
-# SONG PATTERNS
+# Each song has three matching lists:
+#   1. Lane numbers (1-4)
+#   2. Beat positions
+#   3. Note numbers
 #
-# Each level has two lists:
-# First list = Which lane each note belongs to.
-# Second list = When each note appears.
-#
-# Lane 1 = Left
-# Lane 2 = Middle-left
-# Lane 3 = Middle-right
-# Lane 4 = Right
-# ============================================================
-
+# Note number 1 = middle C (C4).
+# 2 = C#4, 3 = D4, 4 = D#4, etc.
 songs_notes = [
-
-    # LEVEL 1: TUTORIAL
     [
-        [1, 2, 3, 4, 3, 2, 1, 1, 3, 2, 4, 1, 4, 3, 2, 1, 2, 3, 4],
-        [1, 2, 3, 4, 5, 6, 7, 10, 11, 12, 13, 15, 16, 17, 18, 19, 20, 21, 22]
+        [1, 2, 3, 4, 1, 2, 3, 4, 1, 3, 2, 4, 1],
+        [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13],
+        [1, 3, 5, 6, 1, 3, 5, 6, 1, 5, 3, 6, 1],
     ],
-
-    # LEVEL 2: THE BEGINNING
     [
-        [2, 4, 1, 3],
-        [1, 2, 3, 4]
+        [1,1,2,2,3,3,2,4,4,3,3,2,2,1,4,4,3,3,2,2,1,4,4,3,3,2,2,1,1,1,2,2,3,3,2,4,4,3,3,2,2,1, 1,2,3,4,],
+        [1, 2, 3, 4,5,6,7,9,10,11,12,13,14,15,17,18,19,20,21,22,23,25,26,27,28,29,30,31,33,34,35,36,37,38,39,41,42,43, 44,45, 46, 47,],
+        [1,1,8,8,10,10,8,6,6,5,5,3,3,1,8,8,6,6,5,5,3,8,8,6,6,5,5,3,1,1,8,8,10,10,8,6,6,5,5,3,3,1,1,1,1,1],
     ],
-
-    # LEVEL 3: HARD LEVEL
     [
-        [4, 3, 2, 1],
-        [1, 2, 5, 6]
+        [2,1,3,1,2,1,3,1,2,1,3,1,2,1,3,1,3,1,4,1,3,1,4,1,3,1,4,1,3,1,4,1,2,1,3,1,2,1,3,1,2,1,3,1,2,1,3,1,3,1,4,1,3,1,4,1,3,1,4,1,3,1,4,1,
+        4,1,3,1,2,1,3,1,2,1,2,1,2,1,3,1,4,1,3,1,2,1,3,1,2,1,4,1,4,1,3,1,2,1,3,1,2,1,2,1,2,1,3,1,4,1,3,1,2,1,3,1,2,1,4,1,2,1,3,1,4,1,3,1,
+        2,1,3,1,2,1,3,1,2,1,3,1,2,1,3,1,3,1,4,1,3,1,4,1,3,1,4,1,3,1,4,1,2,1,3,1,2,1,3,1,2,1,3,1,2,1,3,1,3,1,4,1,3,1,4,1,3,1,4,1,3,1,4,1,
+        4,1,3,1,2,1,3,1,2,1,2,1,2,1,3,1,4,1,3,1,2,1,3,1,2,1,4,1,4,1,3,1,2,1,3,1,2,1,2,1,2,1,3,1,4,1,3,1,2,1,3,1,2,1,4,1,2,1,3,1,4,1,3,1,
+        ],
+        [],
+        [4,0,7,0,4,0,7,0,4,0,7,0,4,0,7,0,5,0,8,0,5,0,8,0,5,0,8,0,5,0,8,0,4,0,7,0,4,0,7,0,4,0,7,0,4,0,7,0,5,0,8,0,5,0,8,0,5,0,8,0,5,0,8,0,
+         12,0,10,0,9,0,10,0,9,0,7,0,9,0,5,0,7,0,4,0,5,0,4,0,5,0,7,0,5,0,4,0,12,0,10,0,9,0,10,0,9,0,7,0,9,0,5,0,7,0,4,0,5,0,4,0,5,0,7,0,5,0,4,0,
+         4,0,7,0,4,0,7,0,4,0,7,0,4,0,7,0,5,0,8,0,5,0,8,0,5,0,8,0,5,0,8,0,4,0,7,0,4,0,7,0,4,0,7,0,4,0,7,0,5,0,8,0,5,0,8,0,5,0,8,0,5,0,8,0,
+         12,0,10,0,9,0,10,0,9,0,7,0,9,0,5,0,7,0,4,0,5,0,4,0,5,0,7,0,5,0,4,0,12,0,10,0,9,0,10,0,9,0,7,0,9,0,5,0,7,0,4,0,5,0,4,0,5,0,7,0,5,0,4,0]
     ]
-
 ]
-
-
-# ============================================================
-# GAMEPLAY SETTINGS
-# Change note spacing, speed, and lane colors here.
-# ============================================================
-
+for i in range(0, 1000):
+    songs_notes[2][1].append(i+1)
 note_spacing = 72
-
 time = 0
 speed = 3
 
-# Colors for the four note lanes (RGB).
 colors = [
     (240, 105, 105),
     (115, 205, 130),
     (245, 220, 105),
-    (105, 165, 235)
+    (105, 165, 235),
 ]
 
-# Stores the active notes.
-pending = [[], []]
-
-# Stores the currently pressed lane.
 click = 0
 
+# pending contains five parallel lists:
+# lanes, beat positions, hit statuses, sound objects, played flags.
+pending = [[], [], [], [], []]
 
-# ============================================================
-# DRAW GAME END SCREEN
-#
-# PURPOSE:
-# Display the final score and high score.
-#
-# ADD HERE:
-# New things you want to display after a level ends.
-# ============================================================
+
+def note_number_to_frequency(note_number):
+    """Convert note number 1=C4 to its frequency in Hz."""
+    middle_c_frequency = 261.625565
+    semitones_from_middle_c = note_number - 1
+    return middle_c_frequency * (2 ** (semitones_from_middle_c / 12))
+
+
+def make_tone(note_number, duration):
+    """Generate a sine-wave sound for a numbered musical note."""
+    sample_rate = 44100
+    frequency = note_number_to_frequency(note_number)
+    sample_count = max(1, int(sample_rate * duration))
+
+    sample_times = np.arange(sample_count) / sample_rate
+    wave = 0.5 * np.sin(2 * np.pi * frequency * sample_times)
+    samples = (wave * 32767).astype(np.int16)
+
+    return pygame.sndarray.make_sound(samples)
+
 
 def draw_game_end():
-
     global high_score_text, last_score_text, new, song_text, song_name
 
     font = pygame.font.SysFont(None, 50)
-
     screen.blit(background_blank, (0, 0))
     screen.blit(check_box, (150, 450))
 
-    song_text = font.render(f"{song_names[song-1]}", True, (255, 255, 255))
+    song_text = font.render(song_names[song - 1], True, (255, 255, 255))
     song_name = font.render(f"level : {song}", True, (255, 255, 255))
 
     if new == 0:
-
-        screen.blit(
-            high_score_text,
-            ((WIDTH/2) - (17*(len(f"High Score : {high_scores[song-1]}")/2)), 150)
-        )
-
-        high_score_text = font.render(
-            f"High Score : {high_scores[song-1]}",
-            True,
-            (255, 255, 255)
-        )
-
+        high_score_label = f"High Score : {high_scores[song - 1]}"
     else:
+        high_score_label = f"NEW High Score : {high_scores[song - 1]}"
 
-        screen.blit(
-            high_score_text,
-            ((WIDTH/2) - (17*(len(f"NEW High Score : {high_scores[song-1]}")/2)), 150)
-        )
+    high_score_text = font.render(high_score_label, True, (255, 255, 255))
+    last_score_label = f"Score : {last_score[song - 1]}"
+    last_score_text = font.render(last_score_label, True, (255, 255, 255))
+    perfect_text = font.render(f"Perfect Notes : {perfects}", True, (255, 255, 255))
+    miss_text = font.render(f"Missed Notes : {misses}", True, (255, 255, 255))
+    early_text = font.render(f"Early Notes : {earlys}", True, (255, 255, 255))
+    late_text = font.render(f"Late Notes : {lates}", True, (255, 255, 255))
 
-        high_score_text = font.render(
-            f"NEW High Score : {high_scores[song-1]}",
-            True,
-            (255, 255, 255)
-        )
-
-    last_score_text = font.render(
-        f"Score : {last_score[song-1]}",
-        True,
-        (255, 255, 255)
+    screen.blit(
+        high_score_text,
+        ((WIDTH / 2) - (17 * (len(high_score_label) / 2)), 150),
     )
-
     screen.blit(
         last_score_text,
-        ((WIDTH/2) - (17*(len(f"Score : {last_score[song-1]}")/2)), 200)
+        ((WIDTH / 2) - (17 * (len(last_score_label) / 2)), 200),
     )
-
     screen.blit(
         song_text,
-        ((WIDTH/2) - (17*(len(f"{song_names[song-1]}")/2)), 100)
+        ((WIDTH / 2) - (17 * (len(song_names[song - 1]) / 2)), 100),
     )
-
     screen.blit(
         song_name,
-        ((WIDTH/2) - (17*(len(f"level : {song}")/2)), 50)
+        ((WIDTH / 2) - (17 * (len(f"level : {song}") / 2)), 50),
+    )
+    screen.blit(
+        perfect_text,
+        ((WIDTH / 2) - (17 * (len(f"Perfect Notes : {perfects}") / 2)), 250),
+    )
+    screen.blit(
+        miss_text,
+        ((WIDTH / 2) - (17 * (len(f"Missed Notes : {misses}") / 2)), 300),
+    )
+    screen.blit(
+        late_text,
+        ((WIDTH / 2) - (17 * (len(f"Early Notes : {earlys}") / 2)), 350),
+    )
+    screen.blit(
+        early_text,
+        ((WIDTH / 2) - (17 * (len(f"Late Notes : {lates}") / 2)), 400),
     )
 
 
-# ============================================================
-# CHECK IF THE GAME HAS ENDED
-#
-# PURPOSE:
-# Remove notes that have passed the screen.
-# Check whether all notes are finished.
-# Update high scores.
-# ============================================================
-
 def check_game_end():
+    global slide, score, new, misses
 
-    global slide, score, start_rect, new
+    for i in range(len(pending[0]) - 1, -1, -1):
+        note_y = -pending[1][i] * note_spacing + time
 
-    for i in range(len(pending[0])-1, -1, -1):
+        # Play the sound once as the note reaches the click area.
+        if note_y >= 500 and not pending[4][i]:
+            pending[3][i].play()
+            pending[4][i] = True
 
-        if 0 - (pending[1][i] * note_spacing) + time > 800:
-
+        if note_y > 800:
             if pending[2][i] == 0:
                 score -= 1
+                misses += 1
 
-            del pending[0][i]
-            del pending[1][i]
-            del pending[2][i]
+            # Delete this note from all five parallel lists.
+            for note_list in pending:
+                del note_list[i]
 
     if len(pending[0]) == 0:
-
         slide += 1
 
-        if score > high_scores[song-1]:
-
-            high_scores[song-1] = score
+        if score > high_scores[song - 1]:
+            high_scores[song - 1] = score
             new = 1
-
         else:
             new = 0
 
-        last_score[song-1] = score
+        last_score[song - 1] = score
 
 
-# ============================================================
-# 13. CHECK HIT ACCURACY
-#
-# PURPOSE:
-# Check whether the player's click hits a note.
-#
-# PERFECT = +2
-# EARLY/LATE = +1
-# MISS = -1
-#
-# ADD HERE:
-# New scoring rules or hit detection improvements.
-# ============================================================
 
 def check_sense():
-
-    global score
+    global score, misses, earlys, lates, perfects
 
     if click > 0:
+        closest_note = None
+        closest_distance = float("inf")
 
+        # Find the closest unjudged note in the clicked lane.
         for i in range(len(pending[0])):
-
-            if pending[2][i] == 0:
-
+            if pending[2][i] == 0 and pending[0][i] == click:
                 note_y = -note_spacing * pending[1][i] + time
+                distance = abs(note_y - 500)
 
-                # PERFECT HIT
-                if pending[0][i] == click and abs(note_y - 500) < 50:
+                if distance < closest_distance:
+                    closest_distance = distance
+                    closest_note = i
 
-                    score += 2
-                    pending[2][i] = 3
-                    break
+        # Judge only the closest note.
+        if closest_note is not None:
+            i = closest_note
+            note_y = -note_spacing * pending[1][i] + time
 
-                # EARLY OR LATE HIT
-                elif pending[0][i] == click and abs(note_y - 500) < 125:
+            if closest_distance < 50:
+                score += 2
+                perfects += 1
+                pending[2][i] = 3
 
-                    score += 1
+            elif closest_distance < 125:
+                score += 1
 
-                    if pending[0][i] == click and (note_y - 500) > 0:
+                if note_y - 500 > 0:
+                    lates += 1
+                    pending[2][i] = 1
+                else:
+                    earlys += 1
+                    pending[2][i] = 2
 
-                        pending[2][i] = 1
-
-                        break
-
-                    else:
-
-                        pending[2][i] = 2
-
-                        break
-
-                # MISS
-                elif pending[0][i] == click and abs(note_y - 500) < 300:
-
-                    score -= 1
-                    pending[2][i] = 4
-
-                    break
+            elif closest_distance < 300:
+                score -= 1
+                misses += 1
+                pending[2][i] = 4
 
 
-# ============================================================
-# CHECK MOUSE LANE CLICK
-#
-# PURPOSE:
-# Figure out which lane the player clicked.
-#
-# ADD HERE:
-# Additional mouse controls.
-# ============================================================
 
 def check_item_click():
-
     global click
 
     mouse_x, mouse_y = pygame.mouse.get_pos()
 
-    for i in range(0, 4):
+    for i in range(4):
+        distance = (
+            (140 + (i * 72) - mouse_x) ** 2
+            + (500 - mouse_y) ** 2
+        ) ** 0.5
 
-        dist = (
-            ((140 + (i*72)) - mouse_x)**2 +
-            (500 - mouse_y)**2
-        )**0.5
-
-        if dist <= 30:
-
+        if distance <= 30:
             click = i + 1
 
 
-# ============================================================
-# DRAW THE GAME SCREEN
-#
-# PURPOSE:
-# Draw the background, lanes, notes, and score.
-#
-# ADD HERE:
-# New gameplay visuals and HUD elements.
-# ============================================================
-
 def draw_game():
-
-    global font, colors, score_text, score
+    global font, score_text
 
     font = pygame.font.SysFont(False, 50)
-
-    song_text = font.render(
-        f"{song_names[song-1]}",
-        True,
-        (255, 255, 255)
-    )
+    current_song_text = font.render(song_names[song - 1], True, (255, 255, 255))
 
     screen.blit(background_blank, (0, 0))
+    pygame.draw.rect(screen, (105, 105, 105), (100, 0, WIDTH - 200, HEIGHT))
 
-    pygame.draw.rect(
-        screen,
-        (105, 105, 105),
-        (100, 0, WIDTH-200, HEIGHT)
-    )
+    for x in (320, 248, 176):
+        pygame.draw.rect(screen, (0, 0, 0), (x - 5, 0, 10, HEIGHT))
 
-    # Draw lane dividers.
-    pygame.draw.rect(screen, (0, 0, 0), (320-(10/2), 0, 10, HEIGHT))
-    pygame.draw.rect(screen, (0, 0, 0), (248-(10/2), 0, 10, HEIGHT))
-    pygame.draw.rect(screen, (0, 0, 0), (176-(10/2), 0, 10, HEIGHT))
-
-    # Draw notes.
     draw_notes()
 
-    # Draw the four note buttons.
-    for i in range(0, 4):
-
-        pygame.draw.circle(screen, (0, 0, 0), (140+(i*72), 500), 35)
-        pygame.draw.circle(screen, colors[i], (140+(i*72), 500), 30)
+    for i in range(4):
+        pygame.draw.circle(screen, (0, 0, 0), (140 + (i * 72), 500), 35)
+        pygame.draw.circle(screen, colors[i], (140 + (i * 72), 500), 30)
 
     screen.blit(
-        song_text,
-        ((WIDTH/2)-(17*(len(song_names[song-1])/2)), 5)
+        current_song_text,
+        ((WIDTH / 2) - (17 * (len(song_names[song - 1]) / 2)), 5),
     )
-
     screen.blit(back_arrow, (425, 20))
 
-    score_text = font.render(f"{score}", True, (255, 255, 255))
-
+    score_text = font.render(str(score), True, (255, 255, 255))
     screen.blit(
         score_text,
-        ((WIDTH/2)-(17*(len(f"{score}")/2)), 50)
+        ((WIDTH / 2) - (17 * (len(str(score)) / 2)), 50),
     )
 
 
-# ============================================================
-# UPLOAD LEVEL DATA
-#
-# PURPOSE:
-# Copy the selected level's notes into the active game.
-#
-# ADD HERE:
-# Any setup that needs to happen when a level starts.
-# ============================================================
-
 def upload_level():
-
     global pending
 
-    pending = [
-        songs_notes[song-1][0].copy(),
-        songs_notes[song-1][1].copy()
+    lanes = songs_notes[song - 1][0].copy()
+    beat_positions = songs_notes[song - 1][1].copy()
+    note_numbers = songs_notes[song - 1][2].copy()
+
+    # A beat lasts note_spacing / speed frames at 60 FPS.
+    beat_duration = note_spacing / speed / 60
+
+    sounds = [
+        make_tone(note_number, beat_duration)
+        for note_number in note_numbers
     ]
 
-    pending.append([])
+    pending = [
+        lanes,
+        beat_positions,
+        [0] * len(lanes),
+        sounds,
+        [False] * len(lanes),
+    ]
 
-    for i in range(0, len(pending[0])):
-
-        pending[2].append(0)
-
-    print(pending)
-
-
-# ============================================================
-# DRAW NOTES
-#
-# PURPOSE:
-# Draw all active notes and their hit feedback.
-#
-# ADD HERE:
-# New note animations or visual effects.
-# ============================================================
 
 def draw_notes():
+    for i in range(len(pending[0])):
+        x = 140 + (72 * (pending[0][i] - 1))
+        y = int(-note_spacing * pending[1][i]) + time
 
-    for i in range(0, len(pending[0])):
+        pygame.draw.circle(screen, (0, 0, 0), (x, y), 35)
+        pygame.draw.circle(screen, colors[pending[0][i] - 1], (x, y), 30)
 
-        pygame.draw.circle(
-            screen,
-            (0, 0, 0),
-            (140+(72*(pending[0][i]-1)), int(0-(note_spacing*pending[1][i]))+time),
-            35
-        )
-
-        pygame.draw.circle(
-            screen,
-            colors[pending[0][i]-1],
-            (140+(72*(pending[0][i]-1)), int(0-(note_spacing*pending[1][i]))+time),
-            30
-        )
-
-        # Show hit feedback.
         if pending[2][i] == 1:
-
-            screen.blit(
-                late,
-                (140+(72*(pending[0][i]-1)-30), int(0-(note_spacing*pending[1][i]))+time-70)
-            )
-
+            screen.blit(late, (x - 30, y - 70))
         elif pending[2][i] == 2:
-
-            screen.blit(
-                early,
-                (140+(72*(pending[0][i]-1)-30), int(0-(note_spacing*pending[1][i]))+time-70)
-            )
-
+            screen.blit(early, (x - 30, y - 70))
         elif pending[2][i] == 3:
-
-            screen.blit(
-                perfect,
-                (140+(72*(pending[0][i]-1)-30), int(0-(note_spacing*pending[1][i]))+time-70)
-            )
-
+            screen.blit(perfect, (x - 30, y - 70))
         elif pending[2][i] == 4:
+            screen.blit(miss, (x - 30, y - 70))
 
-            screen.blit(
-                miss,
-                (140+(72*(pending[0][i]-1)-30), int(0-(note_spacing*pending[1][i]))+time-70)
-            )
-
-
-# ============================================================
-# DRAW START SCREEN
-#
-# PURPOSE:
-# Draw the starting screen.
-#
-# ADD HERE:
-# Start screen decorations, text, and buttons.
-# ============================================================
 
 def draw_bg():
-
-    global font
-
-    font = pygame.font.SysFont(False, 75)
-
     screen.blit(background, (0, 0))
     screen.blit(start_button, (150, 400))
 
 
-# ============================================================
-# LEVEL SELECTION SCREEN
-#
-# PURPOSE:
-# Display the level name, scores, and navigation buttons.
-#
-# ADD HERE:
-# Level selection features.
-# ============================================================
-
 def level_select():
-
-    global song_name, song_text, song_names, song, font
-    global high_score_text, last_score_text
+    global song_name, song_text, font, high_score_text, last_score_text
 
     font = pygame.font.SysFont(False, 75)
-
-    song_text = font.render(
-        f"{song_names[song-1]}",
-        True,
-        (255, 255, 255)
-    )
-
+    song_text = font.render(song_names[song - 1], True, (255, 255, 255))
     high_score_text = font.render(
-        f"High Score : {high_scores[song-1]}",
+        f"High Score : {high_scores[song - 1]}",
         True,
-        (255, 255, 255)
+        (255, 255, 255),
     )
-
     last_score_text = font.render(
-        f"Last Score : {last_score[song-1]}",
+        f"Last Score : {last_score[song - 1]}",
         True,
-        (255, 255, 255)
+        (255, 255, 255),
     )
 
     screen.blit(background_blank, (0, 0))
-
-    song_name = font.render(
-        f"level : {song}",
-        True,
-        (255, 255, 255)
-    )
+    song_name = font.render(f"level : {song}", True, (255, 255, 255))
 
     if song != 1:
         screen.blit(left_arrow, (20, 500))
@@ -642,285 +422,138 @@ def level_select():
         screen.blit(right_arrow, (300, 500))
 
     screen.blit(start_button, (150, 300))
-
     screen.blit(
         song_text,
-        ((WIDTH/2)-(27*(len(song_names[song-1])/2)), 75)
+        ((WIDTH / 2) - (27 * (len(song_names[song - 1]) / 2)), 75),
     )
-
     screen.blit(
         high_score_text,
-        ((WIDTH/2)-(27*(len(f"High Score : {high_scores[song-1]}")/2)), 175)
+        (
+            (WIDTH / 2)
+            - (27 * (len(f"High Score : {high_scores[song - 1]}") / 2)),
+            175,
+        ),
     )
-
     screen.blit(
         last_score_text,
-        ((WIDTH/2)-(27*(len(f"Last Score : {last_score[song-1]}")/2)), 225)
+        (
+            (WIDTH / 2)
+            - (27 * (len(f"Last Score : {last_score[song - 1]}") / 2)),
+            225,
+        ),
     )
-
     screen.blit(song_name, (5, 5))
     screen.blit(back_arrow, (425, 20))
 
 
-# ============================================================
-# MAIN GAME LOOP
-#
-# PURPOSE:
-# Handle all events, inputs, screen updates, and game logic.
-#
-# ADD HERE:
-# Keyboard controls, mouse controls, and other game events.
-# ============================================================
+def clicked_mask(mask, rect, position):
+    if not rect.collidepoint(position):
+        return False
+
+    local_position = (
+        position[0] - rect.x,
+        position[1] - rect.y,
+    )
+    return mask.get_at(local_position)
+
 
 async def main():
+    global slide, song, time, speed, click, score
+    global start_rect, start_mask, song_text, misses, earlys, lates, perfects
 
     running = True
 
-    global slide, song, level_count, song_name, song_text
-    global start_rect, start_mask, time, speed, click, score
-
     while running:
-
-        # ----------------------------------------------------
-        # EVENT HANDLING
-        # Keyboard and mouse inputs.
-        # ----------------------------------------------------
-
         for event in pygame.event.get():
-
             if event.type == pygame.QUIT:
-
                 running = False
 
-
-            # ================================================
-            # START SCREEN INPUT
-            # ================================================
-
-            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and slide == 1:
-
-                if start_rect.collidepoint(event.pos):
-
-                    local_pos = (
-                        event.pos[0] - start_rect.x,
-                        event.pos[1] - start_rect.y
-                    )
-
-                    if start_mask.get_at(local_pos):
-
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if slide == 1:
+                    if clicked_mask(start_mask, start_rect, event.pos):
                         song = 1
                         slide += 1
-
                         song_text = font.render(
-                            f"{song_names[song-1]}",
+                            song_names[song - 1],
                             True,
-                            (255, 255, 255)
+                            (255, 255, 255),
                         )
-
                         start_rect = start_button.get_rect(topleft=(150, 300))
                         start_mask = pygame.mask.from_surface(start_button)
 
-
-            # ================================================
-            # LEVEL SELECT INPUT
-            # ================================================
-
-            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and slide == 2:
-
-                # LEFT ARROW
-                if left_arrow_rect.collidepoint(event.pos) and song != 1:
-
-                    local_pos = (
-                        event.pos[0] - left_arrow_rect.x,
-                        event.pos[1] - left_arrow_rect.y
-                    )
-
-                    if left_arrow_mask.get_at(local_pos):
-
+                elif slide == 2:
+                    if song != 1 and clicked_mask(
+                        left_arrow_mask, left_arrow_rect, event.pos
+                    ):
                         song -= 1
 
-                        song_text = font.render(
-                            f"{song_names[song-1]}",
-                            True,
-                            (255, 255, 255)
-                        )
-
-
-                # RIGHT ARROW
-                elif right_arrow_rect.collidepoint(event.pos) and song != level_count:
-
-                    local_pos = (
-                        event.pos[0] - right_arrow_rect.x,
-                        event.pos[1] - right_arrow_rect.y
-                    )
-
-                    if right_arrow_mask.get_at(local_pos):
-
+                    elif song != level_count and clicked_mask(
+                        right_arrow_mask, right_arrow_rect, event.pos
+                    ):
                         song += 1
 
-                        song_text = font.render(
-                            f"{song_names[song-1]}",
-                            True,
-                            (255, 255, 255)
-                        )
-
-
-                # BACK BUTTON
-                elif back_arrow_rect.collidepoint(event.pos):
-
-                    local_pos = (
-                        event.pos[0] - back_arrow_rect.x,
-                        event.pos[1] - back_arrow_rect.y
-                    )
-
-                    if back_arrow_mask.get_at(local_pos):
-
+                    elif clicked_mask(back_arrow_mask, back_arrow_rect, event.pos):
                         slide -= 1
-
                         start_rect = start_button.get_rect(topleft=(150, 400))
                         start_mask = pygame.mask.from_surface(start_button)
-
                         song_text = font.render("", True, (255, 255, 255))
 
-
-                # START LEVEL BUTTON
-                elif start_rect.collidepoint(event.pos):
-
-                    local_pos = (
-                        event.pos[0] - start_rect.x,
-                        event.pos[1] - start_rect.y
-                    )
-
-                    if start_mask.get_at(local_pos):
-
+                    elif clicked_mask(start_mask, start_rect, event.pos):
                         slide += 1
-
                         time = 0
                         score = 0
-
-                        speed = song_speeds[song-1]
-
+                        speed = song_speeds[song - 1]
                         upload_level()
+                        perfects = 0
+                        misses = 0
+                        earlys = 0
+                        lates = 0
 
-
-            # ================================================
-            # GAMEPLAY INPUT
-            # ================================================
-
-            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and slide == 3:
-
-                # BACK BUTTON
-                if back_arrow_rect.collidepoint(event.pos):
-
-                    local_pos = (
-                        event.pos[0] - back_arrow_rect.x,
-                        event.pos[1] - back_arrow_rect.y
-                    )
-
-                    if back_arrow_mask.get_at(local_pos):
-
+                elif slide == 3:
+                    if clicked_mask(back_arrow_mask, back_arrow_rect, event.pos):
                         slide -= 1
+                    else:
+                        click = 0
+                        check_item_click()
+                        check_sense()
 
-                else:
-
-                    check_item_click()
-                    check_sense()
-
-
-            # ================================================
-            # GAME END SCREEN INPUT
-            # ================================================
-
-            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and slide == 4:
-
-                if check_box_rect.collidepoint(event.pos):
-
-                    local_pos = (
-                        event.pos[0] - check_box_rect.x,
-                        event.pos[1] - check_box_rect.y
-                    )
-
-                    if check_box_mask.get_at(local_pos):
-
+                elif slide == 4:
+                    if clicked_mask(check_box_mask, check_box_rect, event.pos):
                         slide -= 2
-
                         start_rect = start_button.get_rect(topleft=(150, 300))
-
-                else:
-
-                    check_item_click()
-                    check_sense()
-
-
-            # ================================================
-            # KEYBOARD INPUT
-            # ================================================
+                    else:
+                        click = 0
+                        check_item_click()
+                        check_sense()
 
             elif event.type == pygame.KEYDOWN and slide == 3:
-
-                if event.key == pygame.K_1:
-
-                    click = 1
+                if event.key in (
+                    pygame.K_1,
+                    pygame.K_2,
+                    pygame.K_3,
+                    pygame.K_4,
+                ):
+                    click = event.key - pygame.K_0
                     check_sense()
-
-                if event.key == pygame.K_2:
-
-                    click = 2
-                    check_sense()
-
-                if event.key == pygame.K_3:
-
-                    click = 3
-                    check_sense()
-
-                if event.key == pygame.K_4:
-
-                    click = 4
-                    check_sense()
-
-
-        # ----------------------------------------------------
-        # GAME UPDATE
-        # Update the game based on the current screen.
-        # ----------------------------------------------------
 
         clock.tick(60)
-
         screen.fill((0, 0, 0))
 
         if slide == 1:
-
             draw_bg()
-
         elif slide == 2:
-
             level_select()
-
         elif slide == 3:
-
             draw_game()
             check_game_end()
-
             time += speed
-
         elif slide == 4:
-
             draw_game_end()
 
-
-        # ----------------------------------------------------
-        # DISPLAY UPDATE
-        # Show everything drawn this frame.
-        # ----------------------------------------------------
-
         pygame.display.flip()
-
         await asyncio.sleep(0)
 
+    pygame.quit()
 
-# ============================================================
-# START THE GAME
-# This launches the main game loop.
-# ============================================================
 
 asyncio.run(main())
