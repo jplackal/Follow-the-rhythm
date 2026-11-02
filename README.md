@@ -149,5 +149,5 @@ For Test Run
 ```python -m pytest test_main.py```
 
 
-![Follow the Rhythm gameplay](StartScreen.png)
+![Follow the Rhythm gameplay](StartScreen)
 
