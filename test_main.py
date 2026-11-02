@@ -54,3 +54,32 @@ def test_clicked_mask_inside_rect():
 
     assert result == True
     mask.get_at.assert_called_once_with((20, 30))
+
+
+def test_level_select():
+    # Set up test values
+    main.song = 2
+    main.level_count = 3
+    main.song_names = ["Song 1", "Song 2", "Song 3"]
+    main.high_scores = [100, 200, 300]
+    main.last_score = [50, 150, 250]
+
+    # Replace the screen with a mock
+    main.screen = Mock()
+
+    # Mock font and text rendering
+    fake_font = Mock()
+    fake_font.render.side_effect = lambda *args: Mock()
+
+    with patch("pygame.font.SysFont", return_value=fake_font):
+        main.level_select()
+
+    # Check that the font was created correctly
+    pygame_font = patch("pygame.font.SysFont")
+
+    # Check that text was rendered
+    assert fake_font.render.call_count == 4
+
+    # Song 2 is not the first or last level,
+    # so both arrows should be displayed.
+    assert main.screen.blit.call_count == 9
