@@ -143,7 +143,9 @@ songs_notes = [
     [
         [1, 2, 3, 4],  # Lanes
         [1, 2, 3, 4],  # Beat positions
-        [1, 
+        [1, 2, 3, 4]   # sound
+    ]
+```
 
 For Test Run
 ```python -m pytest test_main.py```
