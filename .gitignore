@@ -9,6 +9,11 @@ __pycache__/
 .coverage
 htmlcov/
 
+# Pygbag
+build/
+*.wasm
+*.data
+
 # macOS files
 .DS_Store
 .AppleDouble
