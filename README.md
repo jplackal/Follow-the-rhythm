@@ -1,6 +1,5 @@
 # Follow-the-rhythm
 # Follow the Rhythm 🎵
-on itch --> [Play Follow the Rhythm](https://jplackal.itch.io/follow-the-rhythm)
 ## About the Game
 
 **Follow the Rhythm** is a rhythm game made using Python, Pygame, and NumPy. The goal is to hit the correct notes at the correct time as they fall down the screen.
@@ -36,7 +35,7 @@ Make sure you run the command from the project folder so the game can find its a
 
 You can also play the game in your browser using the web version hosted on itch.io.
 
-[Play Follow the Rhythm on itch.io](YOUR-ITCH-IO-LINK-HERE)
+[Play Follow the Rhythm](https://jplackal.itch.io/follow-the-rhythm)
 
 How to play!
 ### 1. Starting the Game
