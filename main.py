@@ -113,7 +113,10 @@ songs_notes = [
     ],
     [
         [1,1,2,2,3,3,2,4,4,3,3,2,2,1,4,4,3,3,2,2,1,4,4,3,3,2,2,1,1,1,2,2,3,3,2,4,4,3,3,2,2,1, 1,2,3,4,],
-        [1, 2, 3, 4,5,6,7,9,10,11,12,13,14,15,17,18,19,20,21,22,23,25,26,27,28,29,30,31,33,34,35,36,37,38,39,41,42,43, 44,45, 46, 47,],
+        [1, 2, 3, 4, 5, 6, 7, 9, 10, 11, 12, 13, 14, 15,
+        17, 18, 19, 20, 21, 22, 23, 25, 26, 27, 28, 29,
+        30, 31, 33, 34, 35, 36, 37, 38, 39, 41, 42, 43,
+        44, 45, 46, 47, 48, 49, 50, 51],
         [1,1,8,8,10,10,8,6,6,5,5,3,3,1,8,8,6,6,5,5,3,8,8,6,6,5,5,3,1,1,8,8,10,10,8,6,6,5,5,3,3,1,1,1,1,1],
     ],
     [
@@ -129,8 +132,31 @@ songs_notes = [
          12,0,10,0,9,0,10,0,9,0,7,0,9,0,5,0,7,0,4,0,5,0,4,0,5,0,7,0,5,0,4,0,12,0,10,0,9,0,10,0,9,0,7,0,9,0,5,0,7,0,4,0,5,0,4,0,5,0,7,0,5,0,4,0]
     ]
 ]
-for i in range(0, 1000):
-    songs_notes[2][1].append(i+1)
+songs_notes[2][1] = list(
+    range(1, len(songs_notes[2][0]) + 1)
+)
+def validate_songs():
+    for song_index, song_data in enumerate(songs_notes):
+        lanes, beats, notes = song_data
+
+        if not (len(lanes) == len(beats) == len(notes)):
+            raise ValueError(
+                f"Song {song_index + 1} ({song_names[song_index]}) "
+                f"has mismatched lists: "
+                f"{len(lanes)} lanes, "
+                f"{len(beats)} beats, "
+                f"{len(notes)} notes."
+            )
+
+        if any(lane not in (1, 2, 3, 4) for lane in lanes):
+            raise ValueError(
+                f"Song {song_names[song_index]} has an invalid lane."
+            )
+
+    print("All song data validated successfully!")
+
+
+validate_songs()
 note_spacing = 72
 time = 0
 speed = 3
@@ -217,11 +243,11 @@ def draw_game_end():
         ((WIDTH / 2) - (17 * (len(f"Missed Notes : {misses}") / 2)), 300),
     )
     screen.blit(
-        late_text,
+        early_text,
         ((WIDTH / 2) - (17 * (len(f"Early Notes : {earlys}") / 2)), 350),
     )
     screen.blit(
-        early_text,
+        late_text,
         ((WIDTH / 2) - (17 * (len(f"Late Notes : {lates}") / 2)), 400),
     )
 
