@@ -10,9 +10,35 @@ The game includes multiple songs, different difficulties, generated musical soun
 You can also create your own songs by editing the song data in the Python code!
 
 ---
+how to run
+## How to Run the Game
 
-## How to Play
+### Option 1: Run Locally (Python)
 
+1. Download or clone this repository.
+2. Make sure Python 3 is installed.
+3. Install the required libraries:
+
+```bash
+pip install pygame numpy
+```
+
+4. Open the project folder in VS Code or a terminal.
+5. Run the game:
+
+```bash
+python main.py
+```
+
+Make sure you run the command from the project folder so the game can find its assets.
+
+### Option 2: Play in Your Browser
+
+You can also play the game in your browser using the web version hosted on itch.io.
+
+[Play Follow the Rhythm on itch.io](YOUR-ITCH-IO-LINK-HERE)
+
+How to play!
 ### 1. Starting the Game
 
 - Click the **Start** button on the main screen.
@@ -143,8 +169,17 @@ songs_notes = [
     [
         [1, 2, 3, 4],  # Lanes
         [1, 2, 3, 4],  # Beat positions
-        [1, 
+        [1, 2, 3, 4]   # sound
+    ]
+```
 
 For Test Run
 ```python -m pytest test_main.py```
+
+These are the Screen Shots for the Game
+
+![Follow the Rhythm gameplay](StartScreen)
+![Follow the Rhythm gameplay](Level1Select)
+![Follow the Rhythm gameplay](Level3Select)
+![Follow the Rhythm gameplay](end_screen_image)
 
